@@ -6,13 +6,13 @@ public class PlayerAnimator : MonoBehaviour
     private const string  IsRunning = "IsRunning";
     private const string  IsJumping = "IsJumping";
     
-    [SerializeField] private SpriteRenderer _spriteRenderer;
-    
     private Animator _animator;
+    private Flipper _flipper;
     
     private void Awake()
     {
         _animator = GetComponent<Animator>();
+        _flipper = GetComponent<Flipper>();
     }
     
     public void UpdateAnimations(float moveInput, bool isGrounded)
@@ -22,7 +22,7 @@ public class PlayerAnimator : MonoBehaviour
 
         if (isRunning)
         {
-            _spriteRenderer.flipX = moveInput < 0;
+            _flipper.HandleMoveInput(moveInput);
         }
 
         _animator.SetBool(IsJumping, !isGrounded);

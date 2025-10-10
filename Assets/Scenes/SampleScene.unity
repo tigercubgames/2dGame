@@ -180,9 +180,11 @@ GameObject:
   - component: {fileID: 167871716}
   - component: {fileID: 167871715}
   - component: {fileID: 167871720}
+  - component: {fileID: 167871725}
   - component: {fileID: 167871722}
   - component: {fileID: 167871721}
   - component: {fileID: 167871723}
+  - component: {fileID: 167871724}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -355,11 +357,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _moveSpeed: 5
   _jumpForce: 10
-  _groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  _groundChecker: {fileID: 557614085}
-  _groundCheckRadius: 0.2
 --- !u!114 &167871721
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -372,9 +369,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 665d629aa4804db499a14871f1ddedf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _inputReader: {fileID: 167871723}
-  playerController: {fileID: 167871720}
-  _playerAnimator: {fileID: 167871722}
 --- !u!114 &167871722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -387,7 +381,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e557247ceb45da45beaeee9b091e534, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _spriteRenderer: {fileID: 167871718}
 --- !u!114 &167871723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,6 +393,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52ead81b882eec64a876edf5bddb513c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &167871724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167871714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 413fc1625a5b65c468913cf3a64abd17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &167871725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167871714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33d05634f90fee94cb5d9af0b7e75d41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _groundChecker: {fileID: 557614085}
+  _groundCheckRadius: 0.2
+  _groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!1 &198065055
 GameObject:
   m_ObjectHideFlags: 0
@@ -2567,6 +2589,7 @@ GameObject:
   - component: {fileID: 366551652}
   - component: {fileID: 366551651}
   - component: {fileID: 366551650}
+  - component: {fileID: 366551657}
   - component: {fileID: 366551656}
   m_Layer: 3
   m_Name: Enemy
@@ -2701,7 +2724,7 @@ SpriteRenderer:
   m_SortingOrder: 2
   m_Sprite: {fileID: -1075854790282143660, guid: e3531be27cb827743bac8ea66dae5bfd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 0.32, y: 0.32}
@@ -2740,6 +2763,18 @@ MonoBehaviour:
   _route: {fileID: 2137813121}
   _speed: 2.5
   _waypointReachDistance: 0.5
+--- !u!114 &366551657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 366551646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 413fc1625a5b65c468913cf3a64abd17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &518821943
 GameObject:
   m_ObjectHideFlags: 0
@@ -3229,10 +3264,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 1518565014}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad7cce5bf0981f542a3e578e69711264, type: 3}
+  m_Script: {fileID: 11500000, guid: 9585fe1bfa53dbe46a367b15b4e9b1d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _pickablePool: {fileID: 1518565017}
   _spawnPoints:
   - {fileID: 539437561}
   - {fileID: 1645736515}
@@ -3248,7 +3282,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1518565014}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8acc6deb8d96a54db6e5912b212b159, type: 3}
+  m_Script: {fileID: 11500000, guid: ef9b829c6267d5f479d78271b8833b53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _itemPrefab: {fileID: 7643547734172823139, guid: c4fa40816eae49f418563d4171e53196, type: 3}

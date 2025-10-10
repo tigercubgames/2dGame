@@ -5,17 +5,18 @@ public abstract class PickableItem : MonoBehaviour
 {
     public event Action<PickableItem> Picked;
     
-    private PickablePool _pool;
+    private IPickablePool _pool;
     
     public abstract void ApplyPickUpEffect();
+    
     public void PickUp()
     {
         ApplyPickUpEffect();
         Picked?.Invoke(this);
-        _pool.ReturnItem(this);
+        _pool?.ReturnItem(this);
     }
     
-    public void SetPool(PickablePool pool)
+    public void SetPool(IPickablePool pool)
     {
         _pool = pool;
     }

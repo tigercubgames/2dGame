@@ -1,24 +1,22 @@
 using UnityEngine;
 
-[RequireComponent(typeof(MoveHandler))]
+[RequireComponent(typeof(MoveHandler), typeof(GroundDetector))]
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _jumpForce = 10f;
-    [SerializeField] private LayerMask _groundLayer;
-    [SerializeField] private Transform _groundChecker;
-    [SerializeField] private float _groundCheckRadius = 0.2f;
     
     private Rigidbody2D _rigidbody;
-    private bool _isGrounded;
+    private GroundDetector _groundDetector;
     private float _moveInput;
 
     public float MoveInput => _moveInput;
-    public bool IsGrounded => _isGrounded;
+    public bool IsGrounded => _groundDetector.IsGrounded;
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
+        _groundDetector = GetComponent<GroundDetector>();
     }
 
     public void SetMoveInput(float moveInput)
@@ -28,7 +26,6 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        CheckGround();
         Move();
     }
 
@@ -41,14 +38,9 @@ public class PlayerController : MonoBehaviour
 
     public void Jump()
     {
-        if (_isGrounded)
+        if (IsGrounded)
         {
             _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, _jumpForce);
         }
-    }
-
-    private void CheckGround()
-    {
-        _isGrounded = Physics2D.OverlapCircle(_groundChecker.position, _groundCheckRadius, _groundLayer);
     }
 }

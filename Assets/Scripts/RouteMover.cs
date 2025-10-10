@@ -8,16 +8,15 @@ public class RouteMover : MonoBehaviour
     [SerializeField] private Transform _route;
     [SerializeField] private float _speed = 5f;
     [SerializeField] private float _waypointReachDistance = 0.5f;
-    
-    private SpriteRenderer _spriteRenderer;
+
     private Transform[] _waypoints;
     private Transform _currentWaypoint;
-    private Vector2 _direction;
+    private Flipper _flipper;
     private int _currentWaypointIndex = 0;
 
     private void Awake()
     {
-        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _flipper = GetComponent<Flipper>();
         
         InitializeWaypoints();
         _currentWaypoint = _waypoints[_currentWaypointIndex];
@@ -37,7 +36,6 @@ public class RouteMover : MonoBehaviour
         
         MoveToWaypoint();
         UpdateDirection();
-        UpdateSprite();
     }
     
     private bool IsWaypointReached()
@@ -72,11 +70,7 @@ public class RouteMover : MonoBehaviour
     
     private void UpdateDirection()
     {
-        _direction = (_currentWaypoint.position - transform.position).normalized;
-    }
-
-    private void UpdateSprite()
-    {
-        _spriteRenderer.flipX = _direction.x > 0;
+        float directionX = _currentWaypoint.position.x - transform.position.x;
+        _flipper.HandleMoveInput(directionX);
     }
 }

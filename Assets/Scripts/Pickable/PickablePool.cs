@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class PickablePool : MonoBehaviour
+public class PickablePool<T> : MonoBehaviour, IPickablePool where T : PickableItem
 {
-    [SerializeField] private PickableItem _itemPrefab;
+    [SerializeField] private T _itemPrefab;
     [SerializeField] private int _poolCapacity = 5;
     [SerializeField] private int _poolMaxSize = 5;
     
-    private ObjectPool<PickableItem> _pool;
+    private ObjectPool<T> _pool;
 
     private void Awake()
     {
-        _pool = new ObjectPool<PickableItem>(
+        _pool = new ObjectPool<T>(
             createFunc: Create,
             actionOnGet: (item) => item.gameObject.SetActive(true),
             actionOnRelease: (item) => item.gameObject.SetActive(false),
@@ -24,20 +24,20 @@ public class PickablePool : MonoBehaviour
         );
     }
 
-    private PickableItem Create()
+    private T Create()
     {
-        PickableItem item = Instantiate(_itemPrefab);
+        T item = Instantiate(_itemPrefab);
         item.SetPool(this);
         return item;
     }
 
-    public PickableItem GetItem()
+    public T GetItem()
     {
         return _pool.Get();
     }
 
     public void ReturnItem(PickableItem item)
     {
-        _pool.Release(item);
+        _pool.Release(item as T);
     }
 }

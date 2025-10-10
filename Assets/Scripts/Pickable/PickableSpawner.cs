@@ -3,16 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(PickablePool))]
-public class PickableSpawner : MonoBehaviour
+public class PickableSpawner<T> : MonoBehaviour where T : PickableItem
 {
     [SerializeField] private SpawnPoint[] _spawnPoints;
     
-    private PickablePool _pickablePool;
+    private PickablePool<T> _pickablePool;
 
     private void Awake()
     {
-        _pickablePool = GetComponent<PickablePool>();
+        _pickablePool = GetComponent<PickablePool<T>>();
     }
 
     private void Start()
@@ -30,7 +29,7 @@ public class PickableSpawner : MonoBehaviour
 
     private void SpawnAtPoint(SpawnPoint spawnPoint)
     {
-        PickableItem item = _pickablePool.GetItem();
+        T item = _pickablePool.GetItem();
         item.transform.position = spawnPoint.transform.position;
     }
 }
