@@ -5,6 +5,7 @@ public class PlayerAnimator : MonoBehaviour
 {
     private const string  IsRunning = "IsRunning";
     private const string  IsJumping = "IsJumping";
+    private const string AttackTrigger = "Attack";
     
     private Animator _animator;
     private Flipper _flipper;
@@ -26,5 +27,10 @@ public class PlayerAnimator : MonoBehaviour
         }
 
         _animator.SetBool(IsJumping, !isGrounded);
+    }
+    
+    public void PlayAttackAnimation()
+    {
+        _animator.SetTrigger(AttackTrigger);
     }
 }

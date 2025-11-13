@@ -28,7 +28,7 @@ public class PickupOnTouchHandler : MonoBehaviour
     {
         if (other.TryGetComponent<PlayerController>(out PlayerController player))
         {
-            _pickableItem?.PickUp();
+            _pickableItem?.PickUp(other);
         }
     }
 }

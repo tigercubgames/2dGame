@@ -4,8 +4,14 @@ using UnityEngine;
 
 public class Apple : PickableItem
 {
-    public override void ApplyPickUpEffect()
+    [SerializeField] private float _healAmount = 20f;
+    
+    public override void ApplyPickUpEffect(Collider2D toucher)
     {
-        Debug.Log($"Яблоко собрано!");
+        if (toucher.TryGetComponent<IHealth>(out IHealth health))
+        {
+            health.Heal(_healAmount);
+            Debug.Log($"Восстановлено {_healAmount} здоровья!");
+        }
     }
 }

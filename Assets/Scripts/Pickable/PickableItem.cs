@@ -7,11 +7,11 @@ public abstract class PickableItem : MonoBehaviour
     
     private IPickablePool _pool;
     
-    public abstract void ApplyPickUpEffect();
+    public abstract void ApplyPickUpEffect(Collider2D toucher);
     
-    public void PickUp()
+    public void PickUp(Collider2D collider)
     {
-        ApplyPickUpEffect();
+        ApplyPickUpEffect(collider);
         Picked?.Invoke(this);
         _pool?.ReturnItem(this);
     }

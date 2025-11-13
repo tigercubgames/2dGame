@@ -6,6 +6,8 @@ using UnityEngine;
 public class PickableSpawner<T> : MonoBehaviour where T : PickableItem
 {
     [SerializeField] private SpawnPoint[] _spawnPoints;
+    [SerializeField] private bool _useRandomSpawn = false;
+    [SerializeField] private int _spawnCount = 1;
     
     private PickablePool<T> _pickablePool;
 
@@ -16,7 +18,14 @@ public class PickableSpawner<T> : MonoBehaviour where T : PickableItem
 
     private void Start()
     {
-        SpawnAtAllPoints();
+        if (_useRandomSpawn)
+        {
+            SpawnAtRandomPoints();
+        }
+        else
+        {
+            SpawnAtAllPoints();
+        }
     }
 
     private void SpawnAtAllPoints()
@@ -25,6 +34,40 @@ public class PickableSpawner<T> : MonoBehaviour where T : PickableItem
         {
             SpawnAtPoint(spawnPoint);
         }
+    }
+    
+    private void SpawnAtRandomPoints()
+    {
+        if (_spawnPoints.Length == 0) return;
+        
+        int[] randomPoints = GetRandomPoints();
+        
+        foreach (int index in randomPoints)
+        {
+            SpawnAtPoint(_spawnPoints[index]);
+        }
+    }
+    
+    private int[] GetRandomPoints()
+    {
+        int count = Mathf.Min(_spawnCount, _spawnPoints.Length);
+        List<int> availableIndices = new List<int>();
+
+        for (int i = 0; i < _spawnPoints.Length; i++)
+        {
+            availableIndices.Add(i);
+        }
+        
+        int[] points = new int[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, availableIndices.Count);
+            points[i] = availableIndices[randomIndex];
+            availableIndices.RemoveAt(randomIndex);
+        }
+        
+        return points;
     }
 
     private void SpawnAtPoint(SpawnPoint spawnPoint)
