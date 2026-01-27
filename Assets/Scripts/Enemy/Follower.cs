@@ -1,41 +1,22 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Follower : MonoBehaviour
 {
     [SerializeField] private float _speed = 2f;
-    [SerializeField] private float _targetReachDistance = 0.5f;
+    [SerializeField] private float _stopDistance = 0.5f;
     
     private Target _target;
-    private Flipper _flipper;
-    private EnemyAttacker _attacker;
     private bool _isFollowing = false;
+    private bool _hasReachedTarget = false;
     
     public event Action TargetReached;
-
-    private void Awake()
-    {
-        _flipper = GetComponent<Flipper>();
-        _attacker = GetComponent<EnemyAttacker>();
-    }
 
     private void Update()
     {
         if (_isFollowing && _target != null)
         {
-            float distanceToTarget = Vector3.Distance(transform.position, _target.transform.position);
-
-            if (_attacker != null && distanceToTarget <= _attacker.AttackRange)
-            {
-                TargetReached?.Invoke();
-            }
-            else if (distanceToTarget > _targetReachDistance)
-            {
-                FollowTarget();
-                UpdateDirection();
-            }
+            UpdateFollowing();
         }
     }
 
@@ -43,22 +24,67 @@ public class Follower : MonoBehaviour
     {
         _target = target;
         _isFollowing = true;
+        _hasReachedTarget = false;
     }
 
-    public void StopFollow()
+    public void StopFollowing()
     {
         _target = null;
         _isFollowing = false;
+        _hasReachedTarget = false;
+    }
+    
+    public Vector3 GetDirectionToTarget()
+    {
+        if (_target != null)
+        {
+            return (_target.transform.position - transform.position).normalized;
+        }
+        
+        return Vector3.zero;
+    }
+    
+    private void UpdateFollowing()
+    {
+        if (IsCloseEnoughToTarget())
+        {
+            OnTargetReached();
+        }
+        else
+        {
+            MoveTowardsTarget();
+        }
+    }
+    
+    private bool IsCloseEnoughToTarget()
+    {
+        float sqrDistance = (_target.transform.position - transform.position).sqrMagnitude;
+        float sqrStopDistance = _stopDistance * _stopDistance;
+        
+        return sqrDistance <= sqrStopDistance;
+    }
+    
+    private void OnTargetReached()
+    {
+        if (_hasReachedTarget == false)
+        {
+            _hasReachedTarget = true;
+            TargetReached?.Invoke();
+        }
+    }
+    
+    private void MoveTowardsTarget()
+    {
+        _hasReachedTarget = false;
+        MoveToTarget();
     }
 
-    private void FollowTarget()
+    private void MoveToTarget()
     {
-        transform.position = Vector3.MoveTowards(transform.position, _target.transform.position, _speed * Time.deltaTime);
-    }
-
-    private void UpdateDirection()
-    {
-        float directionX = _target.transform.position.x - transform.position.x;
-        _flipper?.HandleMoveInput(directionX);
+        transform.position = Vector3.MoveTowards(
+            transform.position, 
+            _target.transform.position, 
+            _speed * Time.deltaTime
+        );
     }
 }

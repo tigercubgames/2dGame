@@ -1,53 +1,56 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Health : Stat, IHealth, IDamageable
+public class Health : MonoBehaviour, IDamageable
 {
-    public bool IsAlive => CurrentValue > 0;
+    [SerializeField] private float _maxHealth = 100f;
     
-    private HitEffect _hitEffect;
+    private float _currentHealth;
 
-    protected override void Awake()
-    {
-        base.Awake();
-        _hitEffect = GetComponent<HitEffect>();
-    }
-    
-    private void OnEnable()
-    {
-        ValueChanged += OnHealthChanged;
-    }
+    public event Action<float, float> ValueChanged;
+    public event Action Died;
+    public event Action DamageTaken;
+    public event Action Healed;
 
-    private void OnDisable()
-    {
-        ValueChanged -= OnHealthChanged;
-    }
+    public bool IsAlive => _currentHealth > 0;
+    public float CurrentValue => _currentHealth;
+    public float MaxValue => _maxHealth;
 
-    public void TakeDamage(float damage)
+    private void Awake()
     {
-        if(IsAlive == false)
-            return;
-        
-        Subtract(damage);
-        _hitEffect?.PlayHitEffect();
+        _currentHealth = _maxHealth;
     }
 
     public void Heal(float amount)
     {
-        if(IsAlive == false)
-            return;
+        if (amount < 0)
+            throw new ArgumentException("Отрицательное здоровье!");
         
-        Add(amount);
+        if (IsAlive == false)
+            return;
+
+        _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
+        
+        ValueChanged?.Invoke(_currentHealth, _maxHealth);
+        Healed?.Invoke();
     }
 
-    private void OnHealthChanged(float currentHealth, float maxHealth)
+    public void TakeDamage(float damage)
     {
-        if (currentHealth <= 0)
+        if (damage < 0)
+            throw new ArgumentException("Отрицательный урон!");
+        
+        if (IsAlive == false)
+            return;
+
+        _currentHealth = Mathf.Max(_currentHealth - damage, 0f);
+        
+        ValueChanged?.Invoke(_currentHealth, _maxHealth);
+        DamageTaken?.Invoke();
+
+        if (IsAlive == false)
         {
-            Debug.Log($"{this.name} погиб!");
-            this.gameObject.SetActive(false);
+            Died?.Invoke();
         }
     }
 }

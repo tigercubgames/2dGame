@@ -2,10 +2,8 @@ using System;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
-public class PlayerAnimator : MonoBehaviour
+public class EnemyAnimator : MonoBehaviour
 {
-    private const string IsRunning = "IsRunning";
-    private const string IsJumping = "IsJumping";
     private const string AttackTrigger = "Attack";
     private const string HitTrigger = "Hit";
     
@@ -18,16 +16,6 @@ public class PlayerAnimator : MonoBehaviour
         _animator = GetComponent<Animator>();
     }
     
-    public void SetRunning(bool isRunning)
-    {
-        _animator.SetBool(IsRunning, isRunning);
-    }
-    
-    public void SetJumping(bool isJumping)
-    {
-        _animator.SetBool(IsJumping, isJumping);
-    }
-    
     public void PlayAttackAnimation()
     {
         _animator.SetTrigger(AttackTrigger);
@@ -38,7 +26,7 @@ public class PlayerAnimator : MonoBehaviour
         _animator.SetTrigger(HitTrigger);
     }
 
-    public void OnAttackHit()
+    public void OnAttack()
     {
         AttackHit?.Invoke();
     }

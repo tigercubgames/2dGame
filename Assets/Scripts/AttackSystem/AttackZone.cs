@@ -1,31 +1,37 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Collider2D), typeof(TriggerDetector))]
+[RequireComponent(typeof(Collider2D))]
 public class AttackZone : MonoBehaviour
 {
     private List<IDamageable> _targetsInZone = new List<IDamageable>();
-    private TriggerDetector _triggerDetector;
+    private Collider2D _collider;
     private IAttacker _attacker;
     
     private void Awake()
     {
-        _triggerDetector = GetComponent<TriggerDetector>();
+        _collider = GetComponent<Collider2D>();
+        _collider.isTrigger = true;
         _attacker = GetComponentInParent<IAttacker>();
     }
 
-    private void OnEnable()
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        _triggerDetector.TriggerEntered += OnZoneEntered;
-        _triggerDetector.TriggerExited += OnZoneExited;
+        if (other.TryGetComponent(out IDamageable damageable))
+        {
+            if (_targetsInZone.Contains(damageable) == false)
+            {
+                _targetsInZone.Add(damageable);
+            }
+        }
     }
 
-    private void OnDisable()
+    private void OnTriggerExit2D(Collider2D other)
     {
-        _triggerDetector.TriggerEntered -= OnZoneEntered;
-        _triggerDetector.TriggerExited -= OnZoneExited;
+        if (other.TryGetComponent(out IDamageable damageable))
+        {
+            _targetsInZone.Remove(damageable);
+        }
     }
     
     public void ApplyDamage()
@@ -35,25 +41,6 @@ public class AttackZone : MonoBehaviour
         foreach (IDamageable target in targetsCopy)
         {
             target.TakeDamage(_attacker.Damage);
-        }
-    }
-    
-    private void OnZoneEntered(Collider2D other)
-    {
-        if (other.TryGetComponent<IDamageable>(out IDamageable damageable))
-        {
-            if (_targetsInZone.Contains(damageable) == false)
-            {
-                _targetsInZone.Add(damageable);
-            }
-        }
-    }
-
-    private void OnZoneExited(Collider2D other)
-    {
-        if (other.TryGetComponent<IDamageable>(out IDamageable damageable))
-        {
-            _targetsInZone.Remove(damageable);
         }
     }
 }

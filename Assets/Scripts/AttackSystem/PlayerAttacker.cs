@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerAttacker : MonoBehaviour, IAttacker
@@ -9,50 +8,68 @@ public class PlayerAttacker : MonoBehaviour, IAttacker
     [SerializeField] private float _attackDuration = 0.5f;
     [SerializeField] private AttackZone _attackZone;
     
-    private PlayerAnimator _playerAnimator;
-    private InputReader _inputReader;
     private Coroutine _attackCoroutine;
+    private PlayerAnimator _animator;
+    
+    public event Action AttackStarted;
+    public event Action AttackEnded;
     
     public float Damage => _damage;
     
     private void Awake()
     {
-        _inputReader = GetComponent<InputReader>();
-        _playerAnimator = GetComponent<PlayerAnimator>();
+        _animator = GetComponent<PlayerAnimator>();
     }
-
+    
     private void OnEnable()
     {
-        _inputReader.AttackPerformed += OnAttackPerformed;
+        if (_animator != null)
+        {
+            _animator.AttackHit += HandleAttackHit;
+        }
     }
-
+    
     private void OnDisable()
     {
-        _inputReader.AttackPerformed -= OnAttackPerformed;
+        if (_animator != null)
+        {
+            _animator.AttackHit -= HandleAttackHit;
+        }
         
         if (_attackCoroutine != null)
         {
             StopCoroutine(_attackCoroutine);
+            _attackCoroutine = null;
         }
     }
     
-    private void OnAttackPerformed()
+    public bool CanAttack()
     {
-        if (_attackCoroutine == null)
+        return _attackCoroutine == null;
+    }
+    
+    public void Attack()
+    {
+        if (CanAttack())
         {
             _attackCoroutine = StartCoroutine(AttackRoutine());
         }
+    }
+    
+    private void HandleAttackHit()
+    {
+        _attackZone.ApplyDamage();
     }
 
     private IEnumerator AttackRoutine()
     {
         WaitForSeconds wait = new WaitForSeconds(_attackDuration);
         
-        _playerAnimator.PlayAttackAnimation();
-        _attackZone.ApplyDamage();
+        AttackStarted?.Invoke();
         
         yield return wait;
         
         _attackCoroutine = null;
+        AttackEnded?.Invoke();
     }
 }

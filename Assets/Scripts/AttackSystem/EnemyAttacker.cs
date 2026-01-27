@@ -1,20 +1,18 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyAttacker : MonoBehaviour, IAttacker
 {
-    private const string AttackTrigger = "Attack";
-    
     [SerializeField] private float _damage = 5f;
     [SerializeField] private float _attackRange = 1.5f;
-    [SerializeField] private float _attackDuration = 2.0f;
+    [SerializeField] private float _attackCooldown = 2.0f;
     [SerializeField] private AttackZone _attackZone;
     
-    private Animator _animator;
     private Coroutine _attackCoroutine;
+    private EnemyAnimator _animator;
     
+    public event Action AttackStarted;
     public event Action AttackEnded;
     
     public float Damage => _damage;
@@ -22,11 +20,24 @@ public class EnemyAttacker : MonoBehaviour, IAttacker
     
     private void Awake()
     {
-        _animator = GetComponent<Animator>();
+        _animator = GetComponent<EnemyAnimator>();
+    }
+    
+    private void OnEnable()
+    {
+        if (_animator != null)
+        {
+            _animator.AttackHit += OnAttackHit;
+        }
     }
     
     private void OnDisable()
     {
+        if (_animator != null)
+        {
+            _animator.AttackHit -= OnAttackHit;
+        }
+        
         if (_attackCoroutine != null)
         {
             StopCoroutine(_attackCoroutine);
@@ -39,26 +50,35 @@ public class EnemyAttacker : MonoBehaviour, IAttacker
         if (_attackCoroutine != null)
             return false;
 
-        float distanceToTarget = Vector3.Distance(transform.position, targetPosition);
-        return distanceToTarget <= _attackRange;
+        return IsInAttackRange(targetPosition);
     }
 
-    public void TryAttack()
+    public void Attack()
     {
         if (_attackCoroutine == null)
         {
-            _attackCoroutine = StartCoroutine(AttackRoutine());
+            _attackCoroutine = StartCoroutine(AttackCoroutine());
         }
     }
-
-    private IEnumerator AttackRoutine()
+    
+    private void OnAttackHit()
     {
-        WaitForSeconds wait = new WaitForSeconds(_attackDuration);
-        
-        _animator.SetTrigger(AttackTrigger);
         _attackZone.ApplyDamage();
+    }
+
+    private bool IsInAttackRange(Vector3 targetPosition)
+    {
+        float sqrDistance = (targetPosition - transform.position).sqrMagnitude;
+        float sqrAttackRange = _attackRange * _attackRange;
         
-        yield return wait;
+        return sqrDistance <= sqrAttackRange;
+    }
+
+    private IEnumerator AttackCoroutine()
+    {
+        AttackStarted?.Invoke();
+        
+        yield return new WaitForSeconds(_attackCooldown);
         
         _attackCoroutine = null;
         AttackEnded?.Invoke();

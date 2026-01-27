@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +9,7 @@ public class PickableSpawner<T> : MonoBehaviour where T : PickableItem
     [SerializeField] private int _spawnCount = 1;
     
     private PickablePool<T> _pickablePool;
+    private List<T> _activeItems = new List<T>();
 
     private void Awake()
     {
@@ -38,7 +38,8 @@ public class PickableSpawner<T> : MonoBehaviour where T : PickableItem
     
     private void SpawnAtRandomPoints()
     {
-        if (_spawnPoints.Length == 0) return;
+        if (_spawnPoints.Length == 0) 
+            return;
         
         int[] randomPoints = GetRandomPoints();
         
@@ -74,5 +75,30 @@ public class PickableSpawner<T> : MonoBehaviour where T : PickableItem
     {
         T item = _pickablePool.GetItem();
         item.transform.position = spawnPoint.transform.position;
+        item.PickedUp += OnItemPickedUp;
+        _activeItems.Add(item);
+    }
+    
+    private void OnItemPickedUp(PickableItem item)
+    {
+        T typedItem = item as T;
+        
+        if (typedItem != null)
+        {
+            typedItem.PickedUp -= OnItemPickedUp;
+            _activeItems.Remove(typedItem);
+            _pickablePool.ReturnItem(typedItem);
+        }
+    }
+    
+    private void OnDestroy()
+    {
+        foreach (T item in _activeItems)
+        {
+            if (item != null)
+            {
+                item.PickedUp -= OnItemPickedUp;
+            }
+        }
     }
 }

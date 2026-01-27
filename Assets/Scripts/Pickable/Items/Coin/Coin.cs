@@ -6,8 +6,8 @@ using UnityEngine.Pool;
 
 public class Coin : PickableItem
 {
-    public override void ApplyPickUpEffect(Collider2D toucher)
+    protected override void ApplyEffect(GameObject collector)
     {
-        Debug.Log($"{toucher.name} собрал монетку!");
+        Debug.Log($"{collector.name} собрал монетку!");
     }
 }

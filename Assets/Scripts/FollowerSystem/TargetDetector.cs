@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(TriggerDetector))]
+[RequireComponent(typeof(OverlapDetector))]
 public class TargetDetector : MonoBehaviour
 {
-    private TriggerDetector _triggerDetector;
+    private OverlapDetector _detector;
     private Target _currentTarget;
     
     public event Action<Target> TargetDetected;
@@ -14,24 +14,24 @@ public class TargetDetector : MonoBehaviour
 
     private void Awake()
     {
-        _triggerDetector = GetComponent<TriggerDetector>();
+        _detector = GetComponent<OverlapDetector>();
     }
 
     private void OnEnable()
     {
-        _triggerDetector.TriggerEntered += OnEntered;
-        _triggerDetector.TriggerExited += OnExited;
+        _detector.Entered += OnEntered;
+        _detector.Exited += OnExited;
     }
 
     private void OnDisable()
     {
-        _triggerDetector.TriggerEntered -= OnEntered;
-        _triggerDetector.TriggerExited -= OnExited;
+        _detector.Entered -= OnEntered;
+        _detector.Exited -= OnExited;
     }
 
     private void OnEntered(Collider2D other)
     {
-        if (other.TryGetComponent<Target>(out Target target))
+        if (other.TryGetComponent(out Target target))
         {
             _currentTarget = target;
             TargetDetected?.Invoke(_currentTarget);
@@ -40,7 +40,7 @@ public class TargetDetector : MonoBehaviour
 
     private void OnExited(Collider2D other)
     {
-        if (other.TryGetComponent<Target>(out Target target))
+        if (other.TryGetComponent(out Target target))
         {
             _currentTarget = null;
             TargetLost?.Invoke();

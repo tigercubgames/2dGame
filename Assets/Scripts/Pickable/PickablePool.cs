@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class PickablePool<T> : MonoBehaviour, IPickablePool where T : PickableItem
+public class PickablePool<T> : MonoBehaviour where T : PickableItem
 {
     [SerializeField] private T _itemPrefab;
     [SerializeField] private int _poolCapacity = 5;
@@ -14,7 +14,7 @@ public class PickablePool<T> : MonoBehaviour, IPickablePool where T : PickableIt
     private void Awake()
     {
         _pool = new ObjectPool<T>(
-            createFunc: Create,
+            createFunc: () => Instantiate(_itemPrefab),
             actionOnGet: (item) => item.gameObject.SetActive(true),
             actionOnRelease: (item) => item.gameObject.SetActive(false),
             actionOnDestroy: (item) => Destroy(item.gameObject),
@@ -24,20 +24,13 @@ public class PickablePool<T> : MonoBehaviour, IPickablePool where T : PickableIt
         );
     }
 
-    private T Create()
-    {
-        T item = Instantiate(_itemPrefab);
-        item.SetPool(this);
-        return item;
-    }
-
     public T GetItem()
     {
         return _pool.Get();
     }
 
-    public void ReturnItem(PickableItem item)
+    public void ReturnItem(T item)
     {
-        _pool.Release(item as T);
+        _pool.Release(item);
     }
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[RequireComponent(typeof(MoveHandler), typeof(GroundDetector))]
+[RequireComponent(typeof(Rigidbody2D), typeof(GroundDetector))]
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 5f;
@@ -8,9 +8,7 @@ public class PlayerController : MonoBehaviour
     
     private Rigidbody2D _rigidbody;
     private GroundDetector _groundDetector;
-    private float _moveInput;
 
-    public float MoveInput => _moveInput;
     public bool IsGrounded => _groundDetector.IsGrounded;
 
     private void Awake()
@@ -19,20 +17,10 @@ public class PlayerController : MonoBehaviour
         _groundDetector = GetComponent<GroundDetector>();
     }
 
-    public void SetMoveInput(float moveInput)
-    {
-        _moveInput = moveInput;
-    }
-
-    private void FixedUpdate()
-    {
-        Move();
-    }
-
-    private void Move()
+    public void Move(float direction)
     {
         Vector2 velocity = _rigidbody.velocity;
-        velocity.x = _moveInput * _moveSpeed;
+        velocity.x = direction * _moveSpeed;
         _rigidbody.velocity = velocity;
     }
 

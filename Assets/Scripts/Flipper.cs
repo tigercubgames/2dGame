@@ -6,32 +6,25 @@ public class Flipper : MonoBehaviour
 {
     private bool _isFacingRight = true;
 
-    public void HandleMoveInput(float direction)
+    public void Flip(float direction)
     {
         if (direction > 0 && !_isFacingRight)
         {
-            Flip();
+            FlipSprite();
         }
         else if (direction < 0 && _isFacingRight)
         {
-            Flip();
+            FlipSprite();
         }
     }
 
-    private void Flip()
+    private void FlipSprite()
     {
         _isFacingRight = !_isFacingRight;
         
         Vector3 rotation = transform.eulerAngles;
         
-        if (_isFacingRight)
-        {
-            rotation.y = 0f;
-        }
-        else
-        {
-            rotation.y = 180f;
-        }
+        rotation.y = _isFacingRight ? 0f : 180f;
         
         transform.eulerAngles = rotation;
     }
