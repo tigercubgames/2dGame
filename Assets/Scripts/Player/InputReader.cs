@@ -3,13 +3,16 @@ using UnityEngine;
 
 public class InputReader : MonoBehaviour
 {
+    private const string HorizontalAxis = "Horizontal";
     private const KeyCode JumpKey = KeyCode.Space;
     private const KeyCode AttackKey = KeyCode.LeftShift;
+    private const KeyCode VampirismKey = KeyCode.E;
     
     public event Action<float> MovePerformed;
     public event Action MoveCanceled;
     public event Action JumpPerformed;
     public event Action AttackPerformed;
+    public event Action VampirismPerformed;
 
     private float _previousMoveInput;
 
@@ -18,11 +21,12 @@ public class InputReader : MonoBehaviour
         HandleMovementInput();
         HandleJumpInput();
         HandleAttackInput();
+        HandleVampirismInput();
     }
 
     private void HandleMovementInput()
     {
-        float moveInput = Input.GetAxisRaw("Horizontal");
+        float moveInput = Input.GetAxisRaw(HorizontalAxis);
         
         if (moveInput != _previousMoveInput)
         {
@@ -52,6 +56,14 @@ public class InputReader : MonoBehaviour
         if (Input.GetKeyDown(AttackKey))
         {
             AttackPerformed?.Invoke();
+        }
+    }
+    
+    private void HandleVampirismInput()
+    {
+        if (Input.GetKeyDown(VampirismKey))
+        {
+            VampirismPerformed?.Invoke();
         }
     }
 }

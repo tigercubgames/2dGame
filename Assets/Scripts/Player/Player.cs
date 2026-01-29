@@ -3,30 +3,33 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(InputReader))]
-[RequireComponent(typeof(PlayerController))]
+[RequireComponent(typeof(PlayerMovement))]
 [RequireComponent(typeof(PlayerAnimator))]
 [RequireComponent(typeof(PlayerAttacker))]
 [RequireComponent(typeof(Flipper))]
 [RequireComponent(typeof(Health))]
+[RequireComponent(typeof(Vampirism))]
 public class Player : MonoBehaviour
 {
     private InputReader _inputReader;
-    private PlayerController _controller;
+    private PlayerMovement _movement;
     private PlayerAnimator _animator;
     private PlayerAttacker _attacker;
     private Flipper _flipper;
     private Health _health;
+    private Vampirism _vampirism;
     
     private float _moveDirection;
     
     private void Awake()
     {
         _inputReader = GetComponent<InputReader>();
-        _controller = GetComponent<PlayerController>();
+        _movement = GetComponent<PlayerMovement>();
         _animator = GetComponent<PlayerAnimator>();
         _attacker = GetComponent<PlayerAttacker>();
         _flipper = GetComponent<Flipper>();
         _health = GetComponent<Health>();
+        _vampirism = GetComponent<Vampirism>();
     }
     
     private void OnEnable()
@@ -35,6 +38,7 @@ public class Player : MonoBehaviour
         _inputReader.MoveCanceled += OnMoveCanceled;
         _inputReader.JumpPerformed += OnJumpPerformed;
         _inputReader.AttackPerformed += OnAttackPerformed;
+        _inputReader.VampirismPerformed += OnVampirismPerformed;
         _attacker.AttackStarted += OnAttackStarted;
         _health.DamageTaken += OnDamageTaken;
         _health.Died += OnDied;
@@ -46,6 +50,7 @@ public class Player : MonoBehaviour
         _inputReader.MoveCanceled -= OnMoveCanceled;
         _inputReader.JumpPerformed -= OnJumpPerformed;
         _inputReader.AttackPerformed -= OnAttackPerformed;
+        _inputReader.VampirismPerformed -= OnVampirismPerformed;
         _attacker.AttackStarted -= OnAttackStarted;
         _health.DamageTaken -= OnDamageTaken;
         _health.Died -= OnDied;
@@ -69,12 +74,17 @@ public class Player : MonoBehaviour
     
     private void OnJumpPerformed()
     {
-        _controller.Jump();
+        _movement.Jump();
     }
     
     private void OnAttackPerformed()
     {
         _attacker.Attack();
+    }
+    
+    private void OnVampirismPerformed()
+    {
+        _vampirism.TryActivate();
     }
     
     private void OnAttackStarted()
@@ -95,7 +105,7 @@ public class Player : MonoBehaviour
     
     private void HandleMovement()
     {
-        _controller.Move(_moveDirection);
+        _movement.Move(_moveDirection);
         
         if (_moveDirection != 0)
         {
@@ -107,6 +117,6 @@ public class Player : MonoBehaviour
     {
         bool isRunning = Mathf.Abs(_moveDirection) > 0.1f;
         _animator.SetRunning(isRunning);
-        _animator.SetJumping(_controller.IsGrounded == false);
+        _animator.SetJumping(_movement.IsGrounded == false);
     }
 }

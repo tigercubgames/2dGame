@@ -6,24 +6,17 @@ using UnityEngine;
 [RequireComponent(typeof(EnemyAnimator))]
 [RequireComponent(typeof(Flipper))]
 [RequireComponent(typeof(Health))]
+[RequireComponent(typeof(EnemyStateMachineFactory))]
 public class Enemy : MonoBehaviour
 {
-    private EnemyState _currentState = EnemyState.Patrolling;
     private TargetDetector _targetDetector;
     private RouteMover _routeMover;
     private Follower _follower;
     private EnemyAttacker _attacker;
     private EnemyAnimator _animator;
     private Flipper _flipper;
-    private Target _currentTarget;
     private Health _health;
-
-    private enum EnemyState
-    {
-        Patrolling,
-        Following,
-        Attacking
-    }
+    private StateMachine _stateMachine;
 
     private void Awake()
     {
@@ -34,139 +27,70 @@ public class Enemy : MonoBehaviour
         _animator = GetComponent<EnemyAnimator>();
         _flipper = GetComponent<Flipper>();
         _health = GetComponent<Health>();
+        
+        _stateMachine = GetComponent<EnemyStateMachineFactory>().Create
+        (
+            _routeMover,
+            _follower,
+            _targetDetector,
+            _attacker,
+            _flipper
+        );
     }
 
     private void OnEnable()
     {
-        _targetDetector.TargetDetected += OnTargetDetected;
-        _targetDetector.TargetLost += OnTargetLost;
-        _follower.TargetReached += OnTargetReached;
         _attacker.AttackStarted += OnAttackStarted;
-        _attacker.AttackEnded += OnAttackEnded;
         _health.DamageTaken += OnDamageTaken;
         _health.Died += OnDied;
     }
 
     private void OnDisable()
     {
-        _targetDetector.TargetDetected -= OnTargetDetected;
-        _targetDetector.TargetLost -= OnTargetLost;
-        _follower.TargetReached -= OnTargetReached;
         _attacker.AttackStarted -= OnAttackStarted;
-        _attacker.AttackEnded -= OnAttackEnded;
         _health.DamageTaken -= OnDamageTaken;
         _health.Died -= OnDied;
     }
-    
+
     private void Update()
     {
+        _stateMachine?.Update();
         UpdateFlip();
-        
-        if (_currentState == EnemyState.Following && _currentTarget != null)
-        {
-            if (_attacker.CanAttack(_currentTarget.transform.position))
-            {
-                TryAttack();
-            }
-        }
     }
 
-    private void OnTargetDetected(Target target)
-    {
-        _currentTarget = target;
-        SetState(EnemyState.Following);
-    }
-
-    private void OnTargetLost()
-    {
-        _currentTarget = null;
-        SetState(EnemyState.Patrolling);
-    }
-    
-    private void OnTargetReached()
-    {
-        TryAttack();
-    }
-    
     private void OnAttackStarted()
     {
-        SetState(EnemyState.Attacking);
         _animator?.PlayAttackAnimation();
     }
-    
-    private void OnAttackEnded()
-    {
-        if (_currentTarget != null)
-        {
-            SetState(EnemyState.Following);
-        }
-        else
-        {
-            SetState(EnemyState.Patrolling);
-        }
-    }
-    
+
     private void OnDamageTaken()
     {
         _animator.PlayHitAnimation();
     }
-    
+
     private void OnDied()
     {
         Debug.Log($"{gameObject.name} погиб!");
         gameObject.SetActive(false);
     }
-    
-    private void TryAttack()
-    {
-        if (_currentTarget != null && _attacker.CanAttack(_currentTarget.transform.position))
-        {
-            _attacker.Attack();
-        }
-    }
-    
+
     private void UpdateFlip()
     {
-        Vector3 direction = Vector3.zero;
-        
-        if (_currentState == EnemyState.Patrolling)
-        {
-            direction = _routeMover.GetDirectionToWaypoint();
-        }
-        else if (_currentState == EnemyState.Following || _currentState == EnemyState.Attacking)
-        {
-            direction = _follower.GetDirectionToTarget();
-        }
-        
+        Vector3 direction = GetCurrentDirection();
+
         if (direction.x != 0)
         {
             _flipper.Flip(direction.x);
         }
     }
-    
-    private void SetState(EnemyState newState)
+
+    private Vector3 GetCurrentDirection()
     {
-        if (_currentState == newState)
-            return;
-
-        _currentState = newState;
-
-        switch (_currentState)
+        if (_targetDetector.HasTarget)
         {
-            case EnemyState.Patrolling:
-                _follower.StopFollowing();
-                _routeMover.enabled = true;
-                break;
-
-            case EnemyState.Following:
-                _routeMover.enabled = false;
-                _follower.Follow(_currentTarget);
-                break;
-                
-            case EnemyState.Attacking:
-                _follower.StopFollowing();
-                _routeMover.enabled = false;
-                break;
+            return _follower.GetDirectionToTarget();
         }
+
+        return _routeMover.GetDirectionToWaypoint();
     }
 }

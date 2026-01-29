@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(OverlapDetector))]
@@ -11,6 +9,9 @@ public class TargetDetector : MonoBehaviour
     
     public event Action<Target> TargetDetected;
     public event Action TargetLost;
+
+    public bool HasTarget => _currentTarget != null;
+    public Target CurrentTarget => _currentTarget;
 
     private void Awake()
     {
